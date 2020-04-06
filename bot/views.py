@@ -1,5 +1,5 @@
 import telepot
-from telepot.namedtuple import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
+from telepot.namedtuple import KeyboardButton, ReplyKeyboardMarkup
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.views.generic import View
 import json
