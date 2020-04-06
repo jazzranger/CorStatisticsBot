@@ -1,8 +1,9 @@
 import requests
 import json
 from bot.models import Statistic, News
-from datetime import datetime
 import random
+from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
 
 
 def get_statistics(place):
@@ -46,3 +47,34 @@ def get_news():
         news.url = item['url']
         news_arr.append(news)
     return news_arr[random.randint(0, len(news_arr)-1)]
+
+
+def get_statistics_history(place):
+
+    date = datetime.now().date() - timedelta(days=1)  # История идёт до вчера, т.к. за сегодня данных может ещё не быть
+    dates = [date - timedelta(days=1) * num for num in range(7)][::-1]
+
+    url = "https://covid-193.p.rapidapi.com/history"
+    headers = {
+        'x-rapidapi-host': "covid-193.p.rapidapi.com",
+        'x-rapidapi-key': "7f5fba1042msh2fe8a4fbc17cdb7p19fa4bjsnb52f175808e9"
+    }
+
+    querystrings = [{"day": str(day), "country": place} for day in dates]
+    responses = [requests.request("GET", url, headers=headers, params=query).text for query in querystrings]
+    cases_total = [json.loads(response)["response"][0]["cases"]["total"] for response in responses]
+    deaths_total = [json.loads(response)["response"][0]["deaths"]["total"] for response in responses]
+    cases_recovered = [json.loads(response)["response"][0]["cases"]["recovered"] for response in responses]
+
+    dates = [date.strftime("%d.%m.%Y") for date in dates]
+    plt.figure(figsize=(9, 3))
+    plt.plot(dates, cases_total, label="Заражено", marker='X')
+    plt.plot(dates, cases_recovered, label="Выздоровело", marker='X')
+    plt.plot(dates, deaths_total, label="Умерло", marker='X')
+    plt.legend()
+    plt.title(place.title())
+    plt.tight_layout()
+    plt.savefig("images/graph.png")
+    img = open("images/graph.png", "rb")
+
+    return img
