@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.template.loader import render_to_string
 
-telepot.api.set_proxy('http://51.38.71.101:8080')
+# telepot.api.set_proxy('http://51.38.71.101:8080')
 
 
 def _send_statistic(place):
