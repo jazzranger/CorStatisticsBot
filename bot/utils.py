@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 
 def get_statistics(place):
+    """Получает актуальную статистику заболевания."""
     stat = Statistic()
     url = "https://covid-193.p.rapidapi.com/statistics"
     querystring = {"country": place}
@@ -18,8 +19,10 @@ def get_statistics(place):
     request = requests.request("GET", url, headers=headers, params=querystring)
     response = json.loads(request.text)["response"][0]
 
-    stat.country = response['country'] if response["country"] != "All" else "World"
-    stat.country = "Россия" if response['country'] == 'Russia' else "Мир" if response["country"] == "All" else "World"
+    if response['country'] == 'Russia':
+        stat.country = "Россия"
+    elif response["country"] == "All":
+        stat.country = "Мир"
     stat.cases_new = response['cases']['new'] if response['cases']['new'] else 0
     stat.cases_recovered = response['cases']['recovered']
     stat.cases_critical = response['cases']['critical']
@@ -31,11 +34,11 @@ def get_statistics(place):
 
 
 def get_news():
+    """Получает топ новостей по заданной теме за сегодня и возвращает из них одну случайную."""
     url = "http://newsapi.org/v2/top-headlines"
     querystring = {"q": 'коронавирус',
                    "apiKey": '6138e478031e4ddf904377d5a51c64e0',
                    "country": 'ru'}
-
     request = requests.request("GET", url, params=querystring)
     response = json.loads(request.text)["articles"]
 
@@ -50,7 +53,7 @@ def get_news():
 
 
 def get_statistics_history(place):
-
+    """Формирует график статистики заболевания за прошедшую неделю."""
     date = datetime.now().date() - timedelta(days=1)  # История идёт до вчера, т.к. за сегодня данных может ещё не быть
     dates = [date - timedelta(days=1) * num for num in range(7)][::-1]
 
@@ -76,5 +79,4 @@ def get_statistics_history(place):
     plt.tight_layout()
     plt.savefig("images/graph.png")
     img = open("images/graph.png", "rb")
-
     return img
